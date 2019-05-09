@@ -50,6 +50,9 @@ window.onload = function() {
     // open a read/write db transaction, ready for adding the data
     let transaction = db.transaction('notes_os', 'readwrite');
 
+    // Call an object store that's beem added to the database
+    let objectStore = transaction.objectStore('notes_os');
+
     
   }
 
