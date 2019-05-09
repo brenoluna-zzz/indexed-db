@@ -72,4 +72,58 @@ window.onload = function() {
     }
   }
 
+  // Define the displayData() function
+  function displayData() {
+    // Remove any existing item from the DOM to avoid duplicates
+    while (list.firstChild) {
+      list.removeChild(list.firstChild);
+    }
+
+    // Open the object store and get a cursos to iterate through its items
+    let objectStore = db.transaction('notes_os').objectStore('notes_os');
+    objectStore.openCursor().onsuccess = function(e) {
+      let cursor = e.target.result;
+
+      // Keep going if there still another data item
+      if(cursor) {
+        // Create the DOM elements that make up the note
+        let listItem = document.createElement('li');
+        let h3 = document.createElement('h3');
+        let para = document.createElement('p');
+
+        listItem.appendChild(h3);
+        listItem.appendChild(para);
+        list.appendChild(listItem);
+
+        // Put the data from the cursor inside the h3 and para
+        h3.textContent = h3;
+        para.textContent = para;
+
+        // Store the ID of the data item inside an attribute on the listItem, so we know which item it corresponds to. This will be useful later when we want to delete items
+        listItem.setAttribute('data-note-id', cursor.value.id);
+
+        // Create and place the delete button
+        let deleteBtn = document.createElement('button');
+        listItem.appendChild(deleteBtn);
+        deleteBtn.textContent = 'Delete';
+
+        // deleteBtn event handler
+        deleteBtn.onclick = deleteItem;
+
+        // Iterate to the next cursor
+        cursor.continue();
+      } else {
+        // Display a 'no notes stored' in case the list item is empty
+        if(!list.firstChild) {
+          let listItem = document.createElement('li');
+          listItem.textContent = 'No notes stores.'
+          list.appendChild(listItem);
+        }
+        // if there are no more cursor items to iterate through, say so
+        console.log('Notes all displayed');
+      }
+    }
+
+  }
+
 }
