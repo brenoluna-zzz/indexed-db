@@ -53,7 +53,23 @@ window.onload = function() {
     // Call an object store that's beem added to the database
     let objectStore = transaction.objectStore('notes_os');
 
-    
+    // Make a request to add the new item to the object store
+    let request = objectStore.add(newItem);
+    // If it succeeds, clear the form to add new entry
+    request.onsuccess = function() {
+      titleInput.value = '';
+      bodyInput.value = '';
+    }
+
+    // Report on the success or failure of the transaction
+    transaction.onsuccess = function() {
+      console.log('Transaction completed: database modification finished.');
+      // Update the diplayed items to include the new one
+      displayData();
+    }
+    transaction.onerror = function() {
+      console.log('Transaction not opened due to error');
+    }
   }
 
 }
