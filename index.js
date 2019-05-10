@@ -32,7 +32,7 @@ window.onload = function() {
     let objectStore = db.createObjectStore('notes_os', { keyPath: 'id', autoIncrement: true });
     // Define what data items the objectStore will contain
     objectStore.createIndex('title', 'title', { unique: false });
-    objectStore.createIndex('body', 'title', { unique: false });
+    objectStore.createIndex('body', 'body', { unique: false });
 
     console.log('Database setup complete');
   }
@@ -82,7 +82,7 @@ window.onload = function() {
     // Open the object store and get a cursos to iterate through its items
     let objectStore = db.transaction('notes_os').objectStore('notes_os');
     objectStore.openCursor().onsuccess = function(e) {
-      let cursor = e.target.result;
+      let cursor = e.target.result; // Get a reference to the cursor itself
 
       // Keep going if there still another data item
       if(cursor) {
@@ -96,8 +96,8 @@ window.onload = function() {
         list.appendChild(listItem);
 
         // Put the data from the cursor inside the h3 and para
-        h3.textContent = h3;
-        para.textContent = para;
+        h3.textContent = cursor.value.title;
+        para.textContent = cursor.value.body;
 
         // Store the ID of the data item inside an attribute on the listItem, so we know which item it corresponds to. This will be useful later when we want to delete items
         listItem.setAttribute('data-note-id', cursor.value.id);
@@ -124,6 +124,29 @@ window.onload = function() {
       }
     }
 
+  }
+
+  function deleteItem(e) {
+    let noteId = Number(e.target.parentNode.getAttribute('data-note-id'));
+
+    // open a database transaction and delete the task, finding it using the id we retrieved above
+    let transaction = db.transaction(['notes_os'], 'readwrite');
+    let objectStore = transaction.objectStore('notes_os');
+    let request = objectStore.delete(noteId); //why save to request?
+
+    // report that the data item has been deleted
+    transaction.oncomplete = function() {
+      // delete the parent of the button which is the list item, so it is no longer displayed
+      e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+      console.log('Note ' + noteId + ' deleted.');
+
+      // Again, if list item is empty, display a 'No notes stored' message
+      if(!list.firstChild) {
+        let itemList = createElement('li');
+        listItem.textContent = 'No notes stored.';
+        list.appendChild(itemList);
+      }
+    };
   }
 
 }
